@@ -87,19 +87,10 @@ class RecipesMaker() {
 
     private  fun writeFile(jsonFile: String, jsonString: String) {
         val fileObject = File(jsonFile)
-        // create a new file
         fileObject.writeText(jsonString)
     }
 
     private fun loadData(jsonFile: String): Boolean {
-        /*
-        recipeBook = RecipeBook(
-            name ="",
-            ingredients =mutableListOf<Ingredient>(),
-            recipes = mutableListOf<Recipe>()
-        )
-        createData()
-         */
         val stringJson: String = readFile(jsonFile)
         if (stringJson != "") {
             recipeBook = Json.decodeFromString<RecipeBook>(stringJson)
@@ -110,17 +101,8 @@ class RecipesMaker() {
     }
 
     private fun saveData(jsonFile: String): Boolean {
-        // Serializing objects
         val stringJson = Json.encodeToString(recipeBook)
         writeFile(jsonFile, stringJson)
-        /*
-        println("----------------------JSON-------------------------------")
-        println(stringJson)
-        // Deserializing back into objects
-        println("---------------------OBJECT------------------------------")
-        recipeBook = Json.decodeFromString<RecipeBook>(stringJson)
-        println(recipeBook)
-         */
         return true
     }
 
@@ -136,7 +118,7 @@ class RecipesMaker() {
                 println("[${index+1}] - ${category.name}")
             }
         } else {
-            println("<--- Sin Categorias --->")
+            println("<--- Sin Categorías --->")
         }
 
     }
@@ -204,22 +186,22 @@ class RecipesMaker() {
 
     private fun createCategory() {
         println("------------------------------------------------------")
-        print("Ingresar el nombre de la nueva categoria: ")
+        print("Ingresar el nombre de la nueva categoría: ")
         val name = readLine().toString()
         if (name != "") {
             recipeBook.categories.add(Category(name))
-            showMessage("Se creo la nueva categoria ... ")
+            showMessage("Se creo la nueva categoría ... ")
         } else {
             showMessage("No ingreso ningun nombre ... ")
         }
     }
 
     private fun replaceCategory() {
-        showMessage(" Rempazar Categoria ... ")
+        showMessage(" Reemplazar Categoría ... ")
     }
 
     private fun removeCategory() {
-        showMessage(" Eliminar Categoria ... ")
+        showMessage(" Eliminar Categoría ... ")
     }
 
     private fun showCategories() {
@@ -248,18 +230,18 @@ class RecipesMaker() {
         val name = readLine().toString()
         if (name != "") {
             recipeBook.ingredients.add(Ingredient(name))
-            showMessage("Se creo el nuevo ingrediente ... ")
+            showMessage("Se ha creado el nuevo ingrediente ... ")
         } else {
             showMessage("No ingreso ningun nombre ... ")
         }
     }
 
     private fun replaceIngredient() {
-        showMessage(" Rempazar Ingrediente ... ")
+        showMessage(" Reemplazando Ingrediente ... ")
     }
 
     private fun removeIngredient() {
-        showMessage(" Eliminar Ingrediente ... ")
+        showMessage(" Eliminando Ingrediente ... ")
     }
 
     private fun showIngredients() {
@@ -282,27 +264,27 @@ class RecipesMaker() {
         }
     }
 
-    private fun searchRecipe(titulo: String): Boolean {
+    private fun searchRecipe(título: String): Boolean {
         var encontrada = false
         for (recipe in recipeBook.recipes) {
-            encontrada = recipe.title == titulo
+            encontrada = recipe.title == título
             if (encontrada) break
         }
         return encontrada
     }
 
     private fun inputName(recipe: Recipe): Recipe {
-        print("Ingrese el nombre de la receta: ")
+        print("Ingrese el título de la receta: ")
         val title = readLine().toString()
         if (title.isEmpty()) {
-            println("Ingreso un titulo vacio")
+            println("Ha ingresado un título vacio")
             return recipe
         } else {
             if (searchRecipe(title)) {
-                println("Ingreso un titulo ya registrado")
+                println("Ha ingresado un título que ya existe")
                 return recipe
             } else {
-                println("El titulo fue registrado")
+                println("El título fue registrado")
                 recipe.title = title
                 return recipe
             }
@@ -319,7 +301,7 @@ class RecipesMaker() {
             println("CATEGORIAS DISPONIBLES:")
             listCategories()
             println("------------------------------------------------------")
-            print("Elegir un codigo de categoria [?] o salir con [S]: ")
+            print("Elegir un código de categoría [?] o salir con [S]: ")
             val opcion = readLine().toString()
             if (opcion == "S" || opcion == "s") {
                 salir = true
@@ -329,10 +311,10 @@ class RecipesMaker() {
                         val category = recipeBook.categories[opcion.toInt()-1]
                         recipe.categories.add(category)
                     } catch (exception: Exception) {
-                        showMessage("Debe seleccionar un codigo de categoria valido ... ")
+                        showMessage("Debe ingresar un código de categoría válido ... ")
                     }
                 } else {
-                    showMessage("Debe seleccionar un codigo de categoria valido ... ")
+                    showMessage("Debe ingresar un código de categoría válido ... ")
                 }
             }
         }
@@ -349,7 +331,7 @@ class RecipesMaker() {
             println("INGREDIENTES DISPONIBLES:")
             listIngredients()
             println("------------------------------------------------------")
-            print("Elegir un codigo de ingrediente [?] o salir con [S]: ")
+            print("Elegir un código de ingrediente [?] o salir con [S]: ")
             val opcion = readLine().toString()
             if (opcion == "S" || opcion == "s") {
                 salir = true
@@ -365,14 +347,14 @@ class RecipesMaker() {
                                 val recipeIngredient = RecipeIngredient(ingredient, cantidad)
                                 recipe.ingredients.add(recipeIngredient)
                             } else {
-                                showMessage("Debe indicar una cantidad de [${ingredient.name}] valida ... ")
+                                showMessage("Debe indicar una cantidad de [${ingredient.name}] válida ... ")
                             }
                         } while (cantidad == "")
                     } catch (exception: Exception) {
-                        showMessage("Debe seleccionar un codigo de ingrediente valido ... ")
+                        showMessage("Debe ingresar un código de ingrediente válido ... ")
                     }
                 } else {
-                    showMessage("Debe seleccionar un codigo de ingrediente valido ... ")
+                    showMessage("Debe ingresar un código de ingrediente válido ... ")
                 }
             }
         }
@@ -386,7 +368,7 @@ class RecipesMaker() {
             println("PASOS PARA PREPARAR LA RECETA:")
             listInstuctionsRecipe(recipe)
             println("------------------------------------------------------")
-            println("Ingresar una accion para la elaboracion de la receta (Cero terminar): ")
+            println("Ingresar una acción para elaborar la receta (o Cero terminar): ")
             val paso = readLine().toString()
             if (paso.isNotEmpty()) {
                 if (paso != "0") {
@@ -395,7 +377,7 @@ class RecipesMaker() {
                     salir = true
                 }
             } else {
-                showMessage("Debe ingresar una paso no vacio ... ")
+                showMessage("Debe ingresar un paso no vacio ... ")
             }
         }
         return recipe
@@ -425,11 +407,11 @@ class RecipesMaker() {
             when (opcion) {
                 "N","n" -> salir = true
                 "S","s" -> {
-                    if (validateRecipe(recipe)) {
+                    if (válidateRecipe(recipe)) {
                         recipeBook.recipes.add(recipe)
                         guardada = true
                     } else {
-                        showMessage("Receta incompleta, verificar ... ")
+                        showMessage("Los datos de la receta están incompletos ... ")
                     }
                     salir = true
                 }
@@ -441,7 +423,7 @@ class RecipesMaker() {
         return guardada
     }
 
-    private fun validateRecipe(recipe: Recipe): Boolean {
+    private fun válidateRecipe(recipe: Recipe): Boolean {
         val titleOk = !recipe.title.isEmpty()
         val ingredientsOk = recipe.ingredients.isNotEmpty()
         val instructionsOk = !recipe.instructions.isNullOrEmpty()
@@ -460,8 +442,8 @@ class RecipesMaker() {
                 """
                     ------------------------------------------------------
                     RECETA:
-                    [1] - Titulo
-                    [2] - Categorias
+                    [1] - Título
+                    [2] - Categorías
                     [3] - Ingredientes
                     [4] - Instrucciones
                     [5] - Mostrar
@@ -469,7 +451,7 @@ class RecipesMaker() {
                     ------------------------------------------------------
                 """.trimIndent()
             )
-            print("Elegir opcion: ")
+            print("Elige una opción: ")
             val opcion = readLine().toString()
             when (opcion) {
                 "1" -> inputName(recipe)
@@ -485,14 +467,14 @@ class RecipesMaker() {
 
     private fun viewRecipe() {
         println("------------------------------------------------------")
-        print("Ingresar el codigo de la receta: ")
-        val codigo = readLine().toString()
-        if (codigo.isNotEmpty()) {
+        print("Ingresar el código de la receta: ")
+        val código = readLine().toString()
+        if (código.isNotEmpty()) {
             try {
-                val recipe = recipeBook.recipes[codigo.toInt()-1]
+                val recipe = recipeBook.recipes[código.toInt()-1]
                 showRecipe(recipe)
             } catch (exception: Exception) {
-                showMessage("Debe seleccionar un codigo de receta valido ... ")
+                showMessage("Debe ingresar un código de receta válido ... ")
             }
         }
     }
@@ -538,14 +520,14 @@ class RecipesMaker() {
                 """
                     ------------------------------------------------------
                     MENU PRINCIPAL
-                    [1] - Categorias
+                    [1] - Categorías
                     [2] - Ingredientes
                     [3] - Recetas
                     [S] - Salir
                     ------------------------------------------------------
                 """.trimIndent()
             )
-            print("Elegir opcion: ")
+            print("Elige una opción: ")
             opcion = readLine().toString()
             when (opcion) {
                 "1" -> showCategories()
