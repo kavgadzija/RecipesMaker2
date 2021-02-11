@@ -20,7 +20,7 @@ class RecipesMaker() {
         dataSource = ""
     }
 
-    private fun createData() {
+    private fun createTestData() {
         recipeBook.name = "Recetario Personal"
         recipeBook.ingredients.add(Ingredient("Agua"))
         recipeBook.ingredients.add(Ingredient("Leche"))
@@ -190,14 +190,36 @@ class RecipesMaker() {
         val name = readLine().toString()
         if (name != "") {
             recipeBook.categories.add(Category(name))
+            recipeBook.categories.sortBy { it.name }
             showMessage("Se creo la nueva categoría ... ")
         } else {
             showMessage("No ingreso ningun nombre ... ")
         }
     }
 
-    private fun replaceCategory() {
-        showMessage(" Reemplazar Categoría ... ")
+    private fun modifyCategory() {
+        println("------------------------------------------------------")
+        print("Ingrese el código de la categoría a modificar: ")
+        val code = readLine().toString()
+        if (code.isNotEmpty()) {
+            try {
+                val index: Int =  code.toInt() - 1
+                val category = recipeBook.categories[index]
+                print("Cambiar [${category.name}] por el nuevo nombre: ")
+                val name = readLine().toString()
+                if (name != "") {
+                    category.name = name
+                    //recipeBook.categories[index] = category
+                    recipeBook.categories.set(index, category)
+                    recipeBook.categories.sortBy { it.name }
+                    showMessage("Se ha cambiado el nombre de la categoría ... ")
+                } else {
+                    showMessage("No ingreso ningun nombre ... ")
+                }
+            } catch (exception: Exception) {
+                showMessage("Debe ingresar un código de categoría válido ... ")
+            }
+        }
     }
 
     private fun removeCategory() {
@@ -211,15 +233,15 @@ class RecipesMaker() {
             println("CATEGORIAS:")
             listCategories()
             println("------------------------------------------------------")
-            print("Usted desea [C]rear, [R]eemplazar, [B]orrar o [S]alir: ")
+            print("Usted desea [C]rear, [M]odificar, [B]orrar o [S]alir: ")
             val opcion = readLine().toString()
 
             when (opcion) {
                 "C", "c" -> createCategory()
-                "R", "r" -> replaceCategory()
+                "M", "m" -> modifyCategory()
                 "B", "b" -> removeCategory()
                 "S", "s" -> salir = true
-                else -> showMessage("Las opciones válidas son C, R, B, o S ... ")
+                else -> showMessage("Las opciones válidas son C, M, B, o S ... ")
             }
         }
     }
@@ -230,14 +252,35 @@ class RecipesMaker() {
         val name = readLine().toString()
         if (name != "") {
             recipeBook.ingredients.add(Ingredient(name))
+            recipeBook.ingredients.sortBy { it.name }
             showMessage("Se ha creado el nuevo ingrediente ... ")
         } else {
             showMessage("No ingreso ningun nombre ... ")
         }
     }
 
-    private fun replaceIngredient() {
-        showMessage(" Reemplazando Ingrediente ... ")
+    private fun modifyIngredient() {
+        println("------------------------------------------------------")
+        print("Ingrese el código del ingrediente a modificar: ")
+        val code = readLine().toString()
+        if (code.isNotEmpty()) {
+            try {
+                val index: Int =  code.toInt() - 1
+                val ingredient = recipeBook.ingredients[index]
+                print("Cambiar [${ingredient.name}] por el nuevo nombre: ")
+                val name = readLine().toString()
+                if (name != "") {
+                    ingredient.name = name
+                    recipeBook.ingredients.set(index, ingredient)
+                    recipeBook.ingredients.sortBy { it.name }
+                    showMessage("Se ha cambiado el nombre del ingrediente ... ")
+                } else {
+                    showMessage("No ingreso ningun nombre ... ")
+                }
+            } catch (exception: Exception) {
+                showMessage("Debe ingresar un código de ingrediente válido ... ")
+            }
+        }
     }
 
     private fun removeIngredient() {
@@ -251,15 +294,15 @@ class RecipesMaker() {
             println("INGREDIENTES:")
             listIngredients()
             println("------------------------------------------------------")
-            print("Usted desea [C]rear, [R]eemplazar, [B]orrar o [S]alir: ")
+            print("Usted desea [C]rear, [M]odificar, [B]orrar o [S]alir: ")
             val opcion = readLine().toString()
 
             when (opcion) {
                 "C", "c" -> createIngredient()
-                "R", "r" -> replaceIngredient()
+                "M", "m" -> modifyIngredient()
                 "B", "b" -> removeIngredient()
                 "S", "s" -> salir = true
-                else -> showMessage("Las opciones válidas son C, R, B, o S ... ")
+                else -> showMessage("Las opciones válidas son C, M, B, o S ... ")
             }
         }
     }
@@ -310,7 +353,9 @@ class RecipesMaker() {
                     try {
                         val category = recipeBook.categories[opcion.toInt()-1]
                         recipe.categories.add(category)
+                        recipe.categories.sortedBy { it.name }
                     } catch (exception: Exception) {
+
                         showMessage("Debe ingresar un código de categoría válido ... ")
                     }
                 } else {
@@ -346,6 +391,7 @@ class RecipesMaker() {
                             if (cantidad.isNotEmpty()) {
                                 val recipeIngredient = RecipeIngredient(ingredient, cantidad)
                                 recipe.ingredients.add(recipeIngredient)
+                                recipe.ingredients.sortBy { it.ingredient.name }
                             } else {
                                 showMessage("Debe indicar una cantidad de [${ingredient.name}] válida ... ")
                             }
@@ -407,8 +453,9 @@ class RecipesMaker() {
             when (opcion) {
                 "N","n" -> salir = true
                 "S","s" -> {
-                    if (válidateRecipe(recipe)) {
+                    if (validateRecipe(recipe)) {
                         recipeBook.recipes.add(recipe)
+                        recipeBook.recipes.sortBy { it.title }
                         guardada = true
                     } else {
                         showMessage("Los datos de la receta están incompletos ... ")
@@ -423,7 +470,7 @@ class RecipesMaker() {
         return guardada
     }
 
-    private fun válidateRecipe(recipe: Recipe): Boolean {
+    private fun validateRecipe(recipe: Recipe): Boolean {
         val titleOk = !recipe.title.isEmpty()
         val ingredientsOk = recipe.ingredients.isNotEmpty()
         val instructionsOk = !recipe.instructions.isNullOrEmpty()
@@ -468,10 +515,10 @@ class RecipesMaker() {
     private fun viewRecipe() {
         println("------------------------------------------------------")
         print("Ingresar el código de la receta: ")
-        val código = readLine().toString()
-        if (código.isNotEmpty()) {
+        val codigo = readLine().toString()
+        if (codigo.isNotEmpty()) {
             try {
-                val recipe = recipeBook.recipes[código.toInt()-1]
+                val recipe = recipeBook.recipes[codigo.toInt()-1]
                 showRecipe(recipe)
             } catch (exception: Exception) {
                 showMessage("Debe ingresar un código de receta válido ... ")
@@ -479,7 +526,7 @@ class RecipesMaker() {
         }
     }
 
-    private fun replaceRecipe() {
+    private fun modifyRecipe() {
         showMessage(" Rempazar Receta ... ")
     }
 
@@ -500,7 +547,7 @@ class RecipesMaker() {
             when (opcion) {
                 "C", "c" -> createRecipe()
                 "V", "v" -> viewRecipe()
-                "E", "e" -> replaceRecipe()
+                "E", "e" -> modifyRecipe()
                 "B", "b" -> removeRecipe()
                 "S", "s" -> salir = true
                 else -> showMessage("Las opciones válidas son C, V, E, B, o S ... ")
