@@ -1,14 +1,17 @@
 package org.hfmg.rcpsmkr
 
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.prompt
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.hfmg.rcpsmkr.model.*
 import java.io.File
 
-class RecipesMaker() {
+class RecipesMaker : CliktCommand() {
+    private val datasource: String by option(help="Fuente de Datos (archivo JSON)").prompt("Su fuente de datos JSON")
     private lateinit var recipeBook: RecipeBook
-    private lateinit var dataSource: String
 
     init {
         recipeBook = RecipeBook(
@@ -17,71 +20,14 @@ class RecipesMaker() {
             ingredients = mutableListOf<Ingredient>(),
             recipes = mutableListOf<Recipe>()
         )
-        dataSource = ""
-    }
-
-    private fun createTestData() {
-        recipeBook.name = "Recetario Personal"
-        recipeBook.ingredients.add(Ingredient("Agua"))
-        recipeBook.ingredients.add(Ingredient("Leche"))
-        recipeBook.ingredients.add(Ingredient("Carne"))
-        recipeBook.ingredients.add(Ingredient("Verduras"))
-        recipeBook.ingredients.add(Ingredient("Frutas"))
-        recipeBook.ingredients.add(Ingredient("Cereal"))
-        recipeBook.ingredients.add(Ingredient("Huevos"))
-        recipeBook.ingredients.add(Ingredient("Aceite"))
-        recipeBook.ingredients.add(Ingredient("Choclo"))
-        recipeBook.ingredients.add(Ingredient("Queso"))
-        recipeBook.ingredients.add(Ingredient("Sal"))
-
-        val ctg1 = Category("Veganas")
-        val ctg2 = Category("Vegetarianas")
-        val ctg3 = Category("Peruana")
-        val ctg4 = Category("Peruana")
-        val ctg5 = Category("Andina")
-        val ctg6 = Category("Marina")
-        val ctg7 = Category("Peruana")
-        val ctg8 = Category("Francesa")
-        val ctg9 = Category("Pastas")
-        val ctg10 = Category("Postres")
-
-        recipeBook.categories.add(ctg1)
-        recipeBook.categories.add(ctg2)
-        recipeBook.categories.add(ctg3)
-        recipeBook.categories.add(ctg4)
-        recipeBook.categories.add(ctg5)
-        recipeBook.categories.add(ctg6)
-        recipeBook.categories.add(ctg7)
-        recipeBook.categories.add(ctg8)
-        recipeBook.categories.add(ctg9)
-        recipeBook.categories.add(ctg10)
-
-        val recipe1 = Recipe("Choclo con queso",
-            categories = mutableSetOf<Category>(),
-            ingredients =mutableListOf<RecipeIngredient>(),
-            instructions = mutableListOf<String>()
-        )
-        recipe1.categories.add(ctg2)
-        recipe1.categories.add(ctg3)
-
-        val recipeIngredient1 = RecipeIngredient(recipeBook.ingredients[8], "8 unidades")
-        val recipeIngredient2 = RecipeIngredient(recipeBook.ingredients[9], "1 kg")
-        val recipeIngredient3 = RecipeIngredient(recipeBook.ingredients[10], "Al gusto")
-        recipe1.ingredients.add(recipeIngredient1)
-        recipe1.ingredients.add(recipeIngredient2)
-        recipe1.ingredients.add(recipeIngredient3)
-
-        recipe1.instructions.add("Pelar y limpiar las mazorcas de maiz")
-        recipe1.instructions.add("Sancochar los choclos durante 20 minutos en agua con sal")
-        recipe1.instructions.add("Sevir 2 choclos mas 4 rebanadas de queso fresco por porcion")
-
-        recipeBook.recipes.add(recipe1)
     }
 
     private  fun readFile(jsonFile: String): String {
+        var stringJson: String = ""
         val file = File(jsonFile)
-        val stringJson:String = file.readText()
-        println(stringJson)
+        if (file.exists()) {
+            stringJson = file.readText()
+        }
         return stringJson
     }
 
@@ -120,7 +66,6 @@ class RecipesMaker() {
         } else {
             println("<--- Sin Categorías --->")
         }
-
     }
 
     private fun listIngredients() {
@@ -223,7 +168,28 @@ class RecipesMaker() {
     }
 
     private fun removeCategory() {
-        showMessage(" Eliminar Categoría ... ")
+        println("------------------------------------------------------")
+        print("Ingrese el código de la categoría a remover: ")
+        val code = readLine().toString()
+        if (code.isNotEmpty()) {
+            try {
+                val index: Int =  code.toInt() - 1
+                val category = recipeBook.categories[index]
+                print("Confirma remover [${category.name}] (Si={S/s}  o  No={N/n}): ")
+                val opcion = readLine().toString()
+                when (opcion) {
+                    "N", "n" -> showMessage("Operación cancelada ... ")
+                    "S", "s" -> {
+                        recipeBook.categories.remove(category)
+                        //recipeBook.ingredients.removeAt(index)
+                        showMessage("Se ha removido el ingrediente ... ")
+                    }
+                    else -> showMessage("Las opciones válidas son {S/s} o {N/n} ... ")
+                }
+            } catch (exception: Exception) {
+                showMessage("Debe ingresar un código de ingrediente válido ... ")
+            }
+        }
     }
 
     private fun showCategories() {
@@ -233,15 +199,15 @@ class RecipesMaker() {
             println("CATEGORIAS:")
             listCategories()
             println("------------------------------------------------------")
-            print("Usted desea [C]rear, [M]odificar, [B]orrar o [S]alir: ")
+            print("Usted desea [C]rear, [M]odificar, [R]emover o [S]alir: ")
             val opcion = readLine().toString()
 
             when (opcion) {
                 "C", "c" -> createCategory()
                 "M", "m" -> modifyCategory()
-                "B", "b" -> removeCategory()
+                "R", "r" -> removeCategory()
                 "S", "s" -> salir = true
-                else -> showMessage("Las opciones válidas son C, M, B, o S ... ")
+                else -> showMessage("Las opciones válidas son C, M, R, o S ... ")
             }
         }
     }
@@ -251,7 +217,7 @@ class RecipesMaker() {
         print("Ingresar el nombre del nuevo ingrediente: ")
         val name = readLine().toString()
         if (name != "") {
-            recipeBook.ingredients.add(Ingredient(name))
+            recipeBook.ingredients.add(Ingredient(name, Group("Generico")))
             recipeBook.ingredients.sortBy { it.name }
             showMessage("Se ha creado el nuevo ingrediente ... ")
         } else {
@@ -284,7 +250,28 @@ class RecipesMaker() {
     }
 
     private fun removeIngredient() {
-        showMessage(" Eliminando Ingrediente ... ")
+        println("------------------------------------------------------")
+        print("Ingrese el código del ingrediente a remover: ")
+        val code = readLine().toString()
+        if (code.isNotEmpty()) {
+            try {
+                val index: Int =  code.toInt() - 1
+                val ingredient = recipeBook.ingredients[index]
+                print("Confirma remover [${ingredient.name}] (Si={S/s}  o  No={N/n}): ")
+                val opcion = readLine().toString()
+                when (opcion) {
+                    "N", "n" -> showMessage("Operación cancelada ... ")
+                    "S", "s" -> {
+                        recipeBook.ingredients.remove(ingredient)
+                        //recipeBook.ingredients.removeAt(index)
+                        showMessage("Se ha removido el ingrediente ... ")
+                    }
+                    else -> showMessage("Las opciones válidas son {S/s} o {N/n} ... ")
+                }
+            } catch (exception: Exception) {
+                showMessage("Debe ingresar un código de ingrediente válido ... ")
+            }
+        }
     }
 
     private fun showIngredients() {
@@ -294,15 +281,15 @@ class RecipesMaker() {
             println("INGREDIENTES:")
             listIngredients()
             println("------------------------------------------------------")
-            print("Usted desea [C]rear, [M]odificar, [B]orrar o [S]alir: ")
+            print("Usted desea [C]rear, [M]odificar, [R]emover o [S]alir: ")
             val opcion = readLine().toString()
 
             when (opcion) {
                 "C", "c" -> createIngredient()
                 "M", "m" -> modifyIngredient()
-                "B", "b" -> removeIngredient()
+                "R", "r" -> removeIngredient()
                 "S", "s" -> salir = true
-                else -> showMessage("Las opciones válidas son C, M, B, o S ... ")
+                else -> showMessage("Las opciones válidas son C, M, R, o S ... ")
             }
         }
     }
@@ -355,7 +342,6 @@ class RecipesMaker() {
                         recipe.categories.add(category)
                         recipe.categories.sortedBy { it.name }
                     } catch (exception: Exception) {
-
                         showMessage("Debe ingresar un código de categoría válido ... ")
                     }
                 } else {
@@ -531,7 +517,28 @@ class RecipesMaker() {
     }
 
     private fun removeRecipe() {
-        showMessage(" Eliminar Receta ... ")
+        println("------------------------------------------------------")
+        print("Ingrese el código de la receta a remover: ")
+        val code = readLine().toString()
+        if (code.isNotEmpty()) {
+            try {
+                val index: Int =  code.toInt() - 1
+                val recipe = recipeBook.recipes[index]
+                print("Confirma remover [${recipe.title}] (Si={S/s}  o  No={N/n}): ")
+                val opcion = readLine().toString()
+                when (opcion) {
+                    "N", "n" -> showMessage("Operación cancelada ... ")
+                    "S", "s" -> {
+                        recipeBook.recipes.remove(recipe)
+                        //recipeBook.ingredients.removeAt(index)
+                        showMessage("Se ha removido la receta ... ")
+                    }
+                    else -> showMessage("Las opciones válidas son {S/s} o {N/n} ... ")
+                }
+            } catch (exception: Exception) {
+                showMessage("Debe ingresar un código de receta válido ... ")
+            }
+        }
     }
 
     private fun showRecipes() {
@@ -541,14 +548,14 @@ class RecipesMaker() {
             println("RECETAS:")
             listRecipes()
             println("------------------------------------------------------")
-            print("Usted desea [C]rear, [V]er, [E]ditar, [B]orrar o [S]alir: ")
+            print("Usted desea [C]rear, [V]er, [E]ditar, [R]emover o [S]alir: ")
             val opcion = readLine().toString()
 
             when (opcion) {
                 "C", "c" -> createRecipe()
                 "V", "v" -> viewRecipe()
                 "E", "e" -> modifyRecipe()
-                "B", "b" -> removeRecipe()
+                "R", "r" -> removeRecipe()
                 "S", "s" -> salir = true
                 else -> showMessage("Las opciones válidas son C, V, E, B, o S ... ")
             }
@@ -556,8 +563,8 @@ class RecipesMaker() {
     }
 
     private fun exitApp() {
-        saveData(dataSource)
-        showMessage("*** Hasta Pronto *** ... ")
+        saveData(datasource)
+        showMessage("Hasta pronto ... ")
     }
 
     private fun showMainMenu() {
@@ -586,14 +593,18 @@ class RecipesMaker() {
         }
     }
 
+    /*
     fun run(jsonFile: String) {
         dataSource = jsonFile
         loadData(dataSource)
         showMainMenu()
     }
+     */
+
+    override fun run() {
+        loadData(datasource)
+        showMainMenu()
+    }
 }
 
-fun main(args : Array<String>) {
-    val rm = RecipesMaker()
-    rm.run("recipe-book.json")
-}
+fun main(args: Array<String>) = RecipesMaker().main(args)

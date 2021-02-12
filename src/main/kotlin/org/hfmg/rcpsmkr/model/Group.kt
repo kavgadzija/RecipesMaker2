@@ -3,7 +3,6 @@ package org.hfmg.rcpsmkr.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Ingredient(
-    var name: String,
-    var group: Group
+data class Group(
+    var name: String
 )
