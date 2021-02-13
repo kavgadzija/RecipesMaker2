@@ -11,6 +11,6 @@ Options:
   
 ======================================================  
 
-Ejemplo : RecipesMaker --ddatasource recipe-book.json
+Ejemplo : RecipesMaker --datasource recipe-book.json
 
 
