@@ -1,10 +1,10 @@
-## RecipesMaker2
+# RecipesMaker2
 RecipesMaker v2 para el curso de Kotlin en Platzi:
 
-#COMANDO:
+COMANDO:
 RecipesMaker2 --datasource recipe-book.json
 
-#EJECUCION:
+EJECUCION:
 ------------------------------------------------------
 MENU PRINCIPAL                    
 [1] - Grupos de Ingredientes
@@ -16,7 +16,7 @@ MENU PRINCIPAL
 Elige una opción: 4
 
 ------------------------------------------------------
-RECETAS:
+RECETAS: 
 [1] - Ceviche de Pescado
 ------------------------------------------------------
 Usted desea [C]rear, [V]er, [M]odificar, [R]emover o [S]alir: m
